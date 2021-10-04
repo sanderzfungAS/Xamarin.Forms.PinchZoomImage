@@ -10,6 +10,7 @@ namespace Xamarin.Forms.PinchZoomImage
         double startScale = 1;
         double xOffset = 0;
         double yOffset = 0;
+        bool SecondDoubleTapp = false; //boolean checking if the user doubletapped for the first time or second time
 
         public PinchZoom()
         {
@@ -147,7 +148,15 @@ namespace Xamarin.Forms.PinchZoomImage
 
             for (int i=0; i<10; i++)
             {
-                currentScale *= multiplicator;
+                if (!SecondDoubleTapp) //if it's not the second double tapp we enlarge the scale
+                {
+                    currentScale *= multiplicator;
+                }
+                else //if it's the second double tap we make the scale smaller again 
+                {
+                    currentScale /= multiplicator; 
+                }
+
                 double renderedX = Content.X + xOffset;
                 double deltaX = renderedX / Width;
                 double deltaWidth = Width / (Content.Width * startScale);
@@ -167,7 +176,14 @@ namespace Xamarin.Forms.PinchZoomImage
                 Content.Scale = currentScale;
                 await Task.Delay(10);
             }
-
+            if (!SecondDoubleTapp) // if this was the first double tapp then the next one is considered the second double tapp
+            {
+                SecondDoubleTapp = true;
+            }
+            else //reset the boolean 
+            {
+                SecondDoubleTapp = false;
+            }
             xOffset = Content.TranslationX;
             yOffset = Content.TranslationY;
         }
