@@ -4,19 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>tbertuzzi</Authors>
-    <Company>KBits</Company>
-    <Copyright>KBits</Copyright>
+    <Company>tbertuzzi</Company>
+    <Copyright>tbertuzzi</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/MS-PL</PackageLicenseUrl>
     <PackageTags>xamarin xamarin.forms pinch zoom image</PackageTags>
-    <PackageReleaseNotes>Add double tap</PackageReleaseNotes>
+    <PackageReleaseNotes>Add double tap and Xamarin.Forms 5.0</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/TBertuzzi/Xamarin.Forms.PinchZoomImage</PackageProjectUrl>
     <RepositoryUrl>https://github.com/TBertuzzi/Xamarin.Forms.PinchZoomImage</RepositoryUrl>
     <Description>Zoom in on the image with the pinch of your fingers</Description>
     <PackageIconUrl>https://github.com/TBertuzzi/Xamarin.Forms.PinchZoomImage/blob/master/Xamarin.Forms.PinchZoomImage/Resources/pinchZoomIcon.png?raw=true</PackageIconUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
