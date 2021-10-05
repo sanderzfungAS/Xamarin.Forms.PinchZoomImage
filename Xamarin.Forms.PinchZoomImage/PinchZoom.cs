@@ -6,15 +6,15 @@ namespace Xamarin.Forms.PinchZoomImage
 
     public class PinchZoom : ContentView
     {
-        double currentScale = 1;
-        double startScale = 1;
-        double xOffset = 0;
-        double yOffset = 0;
-        bool SecondDoubleTapp = false; //boolean checking if the user doubletapped for the first time or second time
+        private double _currentScale = 1;
+        private double _startScale = 1;
+        private double _xOffset = 0;
+        private double _yOffset = 0;
+        private bool _secondDoubleTapp = false; //boolean checking if the user doubletapped for the first time or second time
 
         public PinchZoom()
         {
-            PinchGestureRecognizer pinchGesture = new PinchGestureRecognizer();
+            var pinchGesture = new PinchGestureRecognizer();
             pinchGesture.PinchUpdated += PinchUpdated;
             GestureRecognizers.Add(pinchGesture);
 
@@ -22,50 +22,48 @@ namespace Xamarin.Forms.PinchZoomImage
             panGesture.PanUpdated += OnPanUpdated;
             GestureRecognizers.Add(panGesture);
 
-            var tapGesture = new TapGestureRecognizer();
-            tapGesture.NumberOfTapsRequired = 2;
+            var tapGesture = new TapGestureRecognizer {NumberOfTapsRequired = 2};
             tapGesture.Tapped += DoubleTapped;
             GestureRecognizers.Add(tapGesture);
         }
 
         private void PinchUpdated(object sender, PinchGestureUpdatedEventArgs e)
         {
-            if (e.Status == GestureStatus.Started)
+            switch (e.Status)
             {
+                case GestureStatus.Started:
+                    _startScale = Content.Scale;
+                    Content.AnchorX = 0;
+                    Content.AnchorY = 0;
+                    break;
+                case GestureStatus.Running:
+                {
+                    _currentScale += (e.Scale - 1) * _startScale;
+                    _currentScale = Math.Max(1, _currentScale);
 
-                startScale = Content.Scale;
-                Content.AnchorX = 0;
-                Content.AnchorY = 0;
-            }
+                    var renderedX = Content.X + _xOffset;
+                    var deltaX = renderedX / Width;
+                    var deltaWidth = Width / (Content.Width * _startScale);
+                    var originX = (e.ScaleOrigin.X - deltaX) * deltaWidth;
 
-            if (e.Status == GestureStatus.Running)
-            {
-                currentScale += (e.Scale - 1) * startScale;
-                currentScale = Math.Max(1, currentScale);
+                    var renderedY = Content.Y + _yOffset;
+                    var deltaY = renderedY / Height;
+                    var deltaHeight = Height / (Content.Height * _startScale);
+                    var originY = (e.ScaleOrigin.Y - deltaY) * deltaHeight;
 
-                double renderedX = Content.X + xOffset;
-                double deltaX = renderedX / Width;
-                double deltaWidth = Width / (Content.Width * startScale);
-                double originX = (e.ScaleOrigin.X - deltaX) * deltaWidth;
+                    var targetX = _xOffset - (originX * Content.Width) * (_currentScale - _startScale);
+                    var targetY = _yOffset - (originY * Content.Height) * (_currentScale - _startScale);
 
-                double renderedY = Content.Y + yOffset;
-                double deltaY = renderedY / Height;
-                double deltaHeight = Height / (Content.Height * startScale);
-                double originY = (e.ScaleOrigin.Y - deltaY) * deltaHeight;
+                    Content.TranslationX = Math.Min(0, Math.Max(targetX, -Content.Width * (_currentScale - 1)));
+                    Content.TranslationY = Math.Min(0, Math.Max(targetY, -Content.Height * (_currentScale - 1)));
 
-                double targetX = xOffset - (originX * Content.Width) * (currentScale - startScale);
-                double targetY = yOffset - (originY * Content.Height) * (currentScale - startScale);
-
-                Content.TranslationX = Math.Min(0, Math.Max(targetX, -Content.Width * (currentScale - 1)));
-                Content.TranslationY = Math.Min(0, Math.Max(targetY, -Content.Height * (currentScale - 1)));
-
-                Content.Scale = currentScale;
-            }
-
-            if (e.Status == GestureStatus.Completed)
-            {
-                xOffset = Content.TranslationX;
-                yOffset = Content.TranslationY;
+                    Content.Scale = _currentScale;
+                    break;
+                }
+                case GestureStatus.Completed:
+                    _xOffset = Content.TranslationX;
+                    _yOffset = Content.TranslationY;
+                    break;
             }
         }
 
@@ -80,19 +78,19 @@ namespace Xamarin.Forms.PinchZoomImage
             {
                 case GestureStatus.Running:
 
-                    double newX = (e.TotalX * Scale) + xOffset;
-                    double newY = (e.TotalY * Scale) + yOffset;
+                    var newX = (e.TotalX * Scale) + _xOffset;
+                    var newY = (e.TotalY * Scale) + _yOffset;
 
-                    double width = (Content.Width * Content.Scale);
-                    double height = (Content.Height * Content.Scale);
+                    var width = (Content.Width * Content.Scale);
+                    var height = (Content.Height * Content.Scale);
 
-                    bool canMoveX = width > Application.Current.MainPage.Width;
-                    bool canMoveY = height > Application.Current.MainPage.Height;
+                    var canMoveX = width > Application.Current.MainPage.Width;
+                    var canMoveY = height > Application.Current.MainPage.Height;
 
                     if (canMoveX)
                     {
-                        double minX = (width - (Application.Current.MainPage.Width / 2)) * -1;
-                        double maxX = Math.Min(Application.Current.MainPage.Width / 2, width / 2);
+                        var minX = (width - (Application.Current.MainPage.Width / 2)) * -1;
+                        var maxX = Math.Min(Application.Current.MainPage.Width / 2, width / 2);
 
                         if (newX < minX)
                         {
@@ -111,8 +109,8 @@ namespace Xamarin.Forms.PinchZoomImage
 
                     if (canMoveY)
                     {
-                        double minY = (height - (Application.Current.MainPage.Height / 2)) * -1;
-                        double maxY = Math.Min(Application.Current.MainPage.Width / 2, height / 2);
+                        var minY = (height - (Application.Current.MainPage.Height / 2)) * -1;
+                        var maxY = Math.Min(Application.Current.MainPage.Width / 2, height / 2);
 
                         if (newY < minY)
                         {
@@ -133,59 +131,58 @@ namespace Xamarin.Forms.PinchZoomImage
                     Content.TranslationY = newY;
                     break;
                 case GestureStatus.Completed:
-                    xOffset = Content.TranslationX;
-                    yOffset = Content.TranslationY;
+                    _xOffset = Content.TranslationX;
+                    _yOffset = Content.TranslationY;
                     break;
+                case GestureStatus.Started:
+                    break;
+                case GestureStatus.Canceled:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         public async void DoubleTapped(object sender, EventArgs e)
         {
-            double multiplicator = Math.Pow(2, 1.0 / 10.0);
-            startScale = Content.Scale;
+            var multiplicator = Math.Pow(2, 1.0 / 10.0);
+            _startScale = Content.Scale;
             Content.AnchorX = 0;
             Content.AnchorY = 0;
 
-            for (int i=0; i<10; i++)
+            for (var i=0; i<10; i++)
             {
-                if (!SecondDoubleTapp) //if it's not the second double tapp we enlarge the scale
+                if (!_secondDoubleTapp) //if it's not the second double tapp we enlarge the scale
                 {
-                    currentScale *= multiplicator;
+                    _currentScale *= multiplicator;
                 }
                 else //if it's the second double tap we make the scale smaller again 
                 {
-                    currentScale /= multiplicator; 
+                    _currentScale /= multiplicator; 
                 }
 
-                double renderedX = Content.X + xOffset;
-                double deltaX = renderedX / Width;
-                double deltaWidth = Width / (Content.Width * startScale);
-                double originX = (0.5 - deltaX) * deltaWidth;
+                var renderedX = Content.X + _xOffset;
+                var deltaX = renderedX / Width;
+                var deltaWidth = Width / (Content.Width * _startScale);
+                var originX = (0.5 - deltaX) * deltaWidth;
 
-                double renderedY = Content.Y + yOffset;
-                double deltaY = renderedY / Height;
-                double deltaHeight = Height / (Content.Height * startScale);
-                double originY = (0.5 - deltaY) * deltaHeight;
+                var renderedY = Content.Y + _yOffset;
+                var deltaY = renderedY / Height;
+                var deltaHeight = Height / (Content.Height * _startScale);
+                var originY = (0.5 - deltaY) * deltaHeight;
 
-                double targetX = xOffset - (originX * Content.Width) * (currentScale - startScale);
-                double targetY = yOffset - (originY * Content.Height) * (currentScale - startScale);
+                var targetX = _xOffset - (originX * Content.Width) * (_currentScale - _startScale);
+                var targetY = _yOffset - (originY * Content.Height) * (_currentScale - _startScale);
 
-                Content.TranslationX = Math.Min(0, Math.Max(targetX, -Content.Width * (currentScale - 1)));
-                Content.TranslationY = Math.Min(0, Math.Max(targetY, -Content.Height * (currentScale - 1)));
+                Content.TranslationX = Math.Min(0, Math.Max(targetX, -Content.Width * (_currentScale - 1)));
+                Content.TranslationY = Math.Min(0, Math.Max(targetY, -Content.Height * (_currentScale - 1)));
 
-                Content.Scale = currentScale;
+                Content.Scale = _currentScale;
                 await Task.Delay(10);
             }
-            if (!SecondDoubleTapp) // if this was the first double tapp then the next one is considered the second double tapp
-            {
-                SecondDoubleTapp = true;
-            }
-            else //reset the boolean 
-            {
-                SecondDoubleTapp = false;
-            }
-            xOffset = Content.TranslationX;
-            yOffset = Content.TranslationY;
+            _secondDoubleTapp = !_secondDoubleTapp;
+            _xOffset = Content.TranslationX;
+            _yOffset = Content.TranslationY;
         }
     }
 }

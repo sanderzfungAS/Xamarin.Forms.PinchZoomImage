@@ -24,6 +24,6 @@
     <Compile Remove="DoubleExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.0.0.709238" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2125" />
   </ItemGroup>
 </Project>
